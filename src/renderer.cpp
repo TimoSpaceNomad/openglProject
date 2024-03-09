@@ -2,8 +2,7 @@
 
 #include <iostream>
  
-void GLClearError()
-{
+void GLClearError() {
     while (glGetError() != GL_NO_ERROR);
 }
 

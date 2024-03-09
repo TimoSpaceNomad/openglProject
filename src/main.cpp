@@ -47,10 +47,10 @@ int main(void)
 
     {
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, // 0
-             0.5f, -0.5f, 1.0f, 0.0f, // 1
-             0.5f,  0.5f, 1.0f, 1.0f, // 2
-            -0.5f,  0.5f, 0.0f, 1.0f  // 3
+            -1.f, -1.f, 0.0f, 0.0f, // 0
+             1.f, -1.f, 1.0f, 0.0f, // 1
+             1.f,  1.f, 1.0f, 1.0f, // 2
+            -1.f,  1.f, 0.0f, 1.0f  // 3
         };
 
         unsigned int indices[] = {
@@ -74,7 +74,9 @@ int main(void)
         Shader shader("res/shaders/Basic.shader");
         shader.Bind();
 
-        Texture texture("res/textures/Logo.png");
+        std::vector<Texture> textures;
+
+        Texture texture("res/textures/streamPNG/");
         texture.Bind(0);
         shader.SetUniform1i("u_Texture", 0);
 
@@ -85,6 +87,9 @@ int main(void)
 
         Renderer renderer;
 
+        unsigned int time = 0;
+        unsigned int texId = 0;
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
@@ -92,6 +97,12 @@ int main(void)
             renderer.Clear();
 
             shader.Bind();
+            if (time % 100) {
+                shader.SetUniform1i("u_Texture", texId);
+                texId++;
+                texId = texId % 32;
+            }
+            time++;
 
             renderer.Draw(va, ib, shader);
 
