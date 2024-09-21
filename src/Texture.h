@@ -16,6 +16,8 @@ public:
     void Bind(unsigned int slot);
     void Unbing();
 
+    void LoadTexture(const std::string& filePath, unsigned int i);
+
     inline int GetWidth() const { return m_Width; }
     inline int GetHeight() const { return m_Height; }
 };

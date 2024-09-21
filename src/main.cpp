@@ -15,7 +15,23 @@
 #include "Shader.h"
 #include "Texture.h"
 
-int main(void) 
+void updateFPSCounter(GLFWwindow* window, double lastTime, unsigned int frames) {
+    double currentTime = glfwGetTime();
+    double delta = currentTime - lastTime;
+    frames++;
+
+    if (delta >= 1.0) {
+        double fps = double(frames) / delta;
+
+        std::string title = "FPS: " + std::to_string(fps);
+        glfwSetWindowTitle(window, title.c_str());
+
+        frames = 0;
+        lastTime = currentTime;
+    }
+}
+
+int main() 
 {
     GLFWwindow* window;
 
@@ -28,7 +44,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1024, 1024, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -74,8 +90,6 @@ int main(void)
         Shader shader("res/shaders/Basic.shader");
         shader.Bind();
 
-        std::vector<Texture> textures;
-
         Texture texture("res/textures/streamPNG/");
         texture.Bind(0);
         shader.SetUniform1i("u_Texture", 0);
@@ -87,24 +101,30 @@ int main(void)
 
         Renderer renderer;
 
-        unsigned int time = 0;
-        unsigned int texId = 0;
+        double lastTime = glfwGetTime();
+        int currentTextureIndex = 0;
+        double lastTextureChangeTime = 0;
+        unsigned int frames = 0;
 
         /* Loop until the user closes the window */
-        while (!glfwWindowShouldClose(window))
-        {
+        while (!glfwWindowShouldClose(window)) {
             /* Render here */
             renderer.Clear();
 
             shader.Bind();
-            if (time % 100) {
-                shader.SetUniform1i("u_Texture", texId);
-                texId++;
-                texId = texId % 32;
+
+            double currentTime = glfwGetTime();
+            if (currentTime - lastTextureChangeTime >= 0.25) {
+                currentTextureIndex = (currentTextureIndex + 1) % 32;
+                lastTextureChangeTime = currentTime;
+
+                texture.Bind(currentTextureIndex);
+                shader.SetUniform1i("u_Texture", currentTextureIndex);
             }
-            time++;
 
             renderer.Draw(va, ib, shader);
+
+            updateFPSCounter(window, lastTime, frames);
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
